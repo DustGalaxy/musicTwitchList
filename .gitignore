@@ -1,0 +1,10 @@
+.env
+.venv
+.vscode
+.gitignode
+cert.pem
+key.pem
+openssl.cnf
+__pycache__
+migrations/script.py.mako
+.rnd
