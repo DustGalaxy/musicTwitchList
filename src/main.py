@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Dict
 from urllib.parse import urlencode
 
 from fastapi import FastAPI, Depends
@@ -28,6 +28,7 @@ app = FastAPI()
 app.include_router(auth_router)
 app.include_router(order_router)
 
+
 @app.get("/users/me/", response_model=UserRead)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     return current_user
@@ -37,9 +38,12 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]
 async def read_own_items(current_user: Annotated[User, Depends(get_current_user)]) -> list[dict[str, str]]:
     return [{"item_id": "Foo", "owner": current_user.username}]
 
+@app.get("/users/me/config")
+async def get_user_config(current_user: Annotated[User, Depends(get_current_user)]) -> Dict[str, str]:
+    return current_user.config
 
 @app.get("/")
-async def index() -> None:
+async def index() -> HTMLResponse:
     return HTMLResponse(f"""
                         <!DOCTYPE html>
                         <html>

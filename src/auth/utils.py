@@ -3,14 +3,11 @@ from datetime import datetime, timedelta
 from typing import Literal, Optional
 from jose import jwt
 from sqlalchemy import insert, select
-from src.config import SECRET_KEY, TWITCH_CLIENT_ID, ALGORITHM
+from src.config import SECRET_KEY, TWITCH_CLIENT_ID, ALGORITHM, REDIRECT_URL
 from src.auth.models import User
 from src.auth.manager import client
 from src.database import async_session_maker
 from fastapi import HTTPException
-
-redirect_uri = "http://localhost:8000/auth/twitch/callback"
-
 
 
 
@@ -41,7 +38,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 async def twitch_login(code: str = None) -> str:
     
     try:
-        token = await client.get_access_token(code, redirect_uri)
+        token = await client.get_access_token(code, REDIRECT_URL)
     except Exception:
         raise HTTPException(400, "missing code")
 

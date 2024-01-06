@@ -1,8 +1,12 @@
+import json
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
+    
+with open('bot_config.json') as json_file:
+    data = json.load(json_file)
+DEFAULT_BOT_CONFIG = data
 
 TWITCH_CLIENT_ID = os.environ.get("TWITCH_CLIENT_ID")
 TWITCH_SECRET = os.environ.get("TWITCH_SECRET")

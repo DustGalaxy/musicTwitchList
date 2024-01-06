@@ -1,7 +1,8 @@
 from http.client import HTTPResponse
 from typing import Annotated, Dict, List
 from fastapi import APIRouter, Depends, Response, status
-from sqlalchemy import insert, select
+from fastapi_users_db_sqlalchemy import UUID_ID
+from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.orders.models import Order
 from src.orders.schemas import Order as OrderScheme
@@ -34,6 +35,7 @@ async def orders_curr_user(
 async def create_order(
     url: str,
     sendler: str,
+    # user_id: GUID
     # !!! не curruser а пользователь переданий внутрь запросом от бота
     curruser: Annotated[User, Depends(get_current_user)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
@@ -44,3 +46,16 @@ async def create_order(
     await session.commit()
     response.status_code = status.HTTP_201_CREATED
     return {"detail": "Order has been successfully created"}
+
+
+@order_router.post("/delete_order")
+async def delete_order(
+    id: UUID_ID,
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+    response: Response
+) -> Dict[str, str]:
+    stmt = delete(Order).where(Order.id == id)
+    await session.execute(stmt)
+    await session.commit()
+    response.status_code = status.HTTP_202_ACCEPTED
+    return {"detail": "Order has been successfully deleted"}
