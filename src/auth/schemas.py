@@ -14,7 +14,6 @@ class UserRead(BaseModel):
     
     image_url: str
 
-    
     email: str
     is_active: bool
     is_superuser: bool

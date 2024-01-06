@@ -8,3 +8,5 @@ openssl.cnf
 __pycache__
 migrations/script.py.mako
 .rnd
+help commands.txt
+

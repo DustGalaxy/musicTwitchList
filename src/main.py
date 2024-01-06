@@ -8,6 +8,8 @@ from src.auth.router import auth_router, get_current_user
 from src.auth.schemas import UserRead
 from src.auth.models import User
 
+from src.orders.router import order_router
+
 from src.config import TWITCH_CLIENT_ID, REDIRECT_URL, TWITCH_URL_AUTHORIZE
 
 
@@ -24,6 +26,7 @@ url = TWITCH_URL_AUTHORIZE + '?' + urlencode(request_payload)
 app = FastAPI()
 
 app.include_router(auth_router)
+app.include_router(order_router)
 
 @app.get("/users/me/", response_model=UserRead)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]) -> User:

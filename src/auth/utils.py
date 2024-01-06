@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import Literal, Optional
 from jose import jwt
 from sqlalchemy import insert, select
-from config import SECRET_KEY, TWITCH_CLIENT_ID, ALGORITHM
+from src.config import SECRET_KEY, TWITCH_CLIENT_ID, ALGORITHM
 from src.auth.models import User
 from src.auth.manager import client
 from src.database import async_session_maker
