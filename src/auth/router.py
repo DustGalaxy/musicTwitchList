@@ -1,6 +1,6 @@
-
 from datetime import datetime, timedelta
 from typing import Annotated
+from fastapi.responses import RedirectResponse
 from jose import jwt
 from src.auth.utils import authenticate_user, create_access_token, get_user, twitch_login
 from src.auth.schemas import Token, TokenData, UserRead
@@ -36,28 +36,34 @@ async def get_current_user(session: Annotated[str | None, Cookie()] = None) -> U
     return user
 
 
-@auth_router.post("/token", response_model=Token)
-async def login_for_access_token(code: str, response: Response) -> dict[str, str]:
+@auth_router.get("/token", response_model=Token)
+async def login_for_access_token(code: Annotated[str | None, Cookie()] = None) -> Token:
+    response = RedirectResponse("/api/users/me/")
     try:
         username = await twitch_login(code)
     except KeyError:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-        return {"detail": "Email not confirmed, please confirm email to continue."}
+        raise HTTPException(503, {"detail": "Email not confirmed, please confirm email to continue."}) 
     user = await authenticate_user(username)
 
     access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    response.set_cookie(key="session", value=access_token, expires=str(datetime.utcnow() + access_token_expires))
+    response.set_cookie(key="session", secure=True, httponly=True, value=access_token, max_age=3600)
     
     # todo normal return
-    return 
+    return response
 
 
-@auth_router.get("/twitch/callback")
-async def callback(code: str = None) -> str:
-    return code
+
+@auth_router.get("/twitch/callback", response_class=RedirectResponse)
+async def callback(code: str = None)-> RedirectResponse:
+    
+    response = RedirectResponse("/api/alpha1/auth/token")
+    response.set_cookie("code", code, 1)
+        
+    return response
 
 
 

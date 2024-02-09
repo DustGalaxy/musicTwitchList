@@ -1,3 +1,4 @@
+from datetime import datetime
 import uuid
 from pydantic import BaseModel
 
@@ -7,4 +8,5 @@ class Order(BaseModel):
     id: uuid.UUID
     url: str
     sendler: str
-    recipient: UserRead
+    time_created: datetime
+    user: UserRead

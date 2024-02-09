@@ -4,7 +4,6 @@ from uuid import uuid4
 
 from fastapi_users_db_sqlalchemy import UUID_ID
 from fastapi_users_db_sqlalchemy.generics import GUID
-from pydantic import Json
 
 from sqlalchemy import TIMESTAMP, Boolean, String
 from sqlalchemy.dialects.postgresql import JSON

@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 from typing import Literal, Optional
 from jose import jwt
@@ -36,7 +35,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     return encoded_jwt
 
 async def twitch_login(code: str = None) -> str:
-    
+
     try:
         token = await client.get_access_token(code, REDIRECT_URL)
     except Exception:

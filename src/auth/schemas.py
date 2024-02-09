@@ -27,6 +27,8 @@ class UserRead(BaseModel):
 
 
 class UserCreate(BaseModel):
+    
+    id: uuid.UUID
     username: str 
     
     twitch_user_id: str
@@ -35,15 +37,18 @@ class UserCreate(BaseModel):
     
     image_url: str
     
-    id: uuid.UUID
+    config: dict[str, str]
+    
     email: str
-    hashed_password: str
+    
     is_active: bool
     is_superuser: bool
     is_verified: bool
 
 
 class UserUpdate(BaseModel):
+    id: uuid.UUID
+    
     username: Optional[str]  
     
     twitch_user_id: Optional[str] 
@@ -51,17 +56,21 @@ class UserUpdate(BaseModel):
     twitch_refresh_token: Optional[str] 
     
     image_url: Optional[str]
-    id: uuid.UUID
-    email: str
-    hashed_password: str
-    is_active: bool
-    is_superuser: bool
-    is_verified: bool
+   
+    config: Optional[dict[str, str]]
+   
+    email: Optional[str] 
+
+    is_active: Optional[bool] 
+    is_superuser: Optional[bool] 
+    is_verified: Optional[bool] 
     
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
 
 
 class TokenData(BaseModel):

@@ -12,5 +12,6 @@ class Order(Base):
     url: Mapped[str] 
     sendler: Mapped[str] 
     time_created = MappedColumn(TIMESTAMP, default=datetime.utcnow)
-    user_id: Mapped[UUID_ID] = MappedColumn(ForeignKey('user.id'))
+    user_id: Mapped[UUID_ID] = MappedColumn(ForeignKey('user.id'), nullable=True)
+    user: Mapped["User"] = relationship(back_populates="order")
     
