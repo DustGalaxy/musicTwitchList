@@ -14,7 +14,7 @@ class UserRead(BaseModel):
     
     image_url: str
 
-    config: dict[str, str]
+    config: dict[str, str | int]
     
     email: str
     is_active: bool
