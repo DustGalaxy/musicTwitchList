@@ -1,11 +1,14 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Annotated
-from fastapi.responses import RedirectResponse
-from jose import jwt
-from src.auth.utils import authenticate_user, create_access_token, get_user, twitch_login
-from src.auth.schemas import Token, TokenData, UserRead
-from src.config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM
+
 from fastapi import APIRouter, HTTPException, Response, status, Cookie, Header
+from fastapi.responses import RedirectResponse
+from icecream import ic
+from jose import jwt
+
+from src.auth.schemas import TokenData, UserRead
+from src.auth.utils import authenticate_user, create_access_token, get_user, twitch_login
+from src.config import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM
 
 auth_router = APIRouter(
     prefix="/auth",
@@ -20,7 +23,8 @@ async def get_current_user(
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"})
+        headers={"Authenticate": "Bearer"}
+    )
 
     try:
         payload = jwt.decode(session, SECRET_KEY, algorithms=[ALGORITHM])
@@ -41,21 +45,27 @@ async def get_current_user(
     return user
 
 
-@auth_router.get("/token")
+@auth_router.get("/login")
 async def login_for_access_token(
-        code: Annotated[str | None, Cookie()] = None,
-        authorization: Annotated[str | None, Header()] = None
-) -> Token:
+        response: Response,
+        authorization: Annotated[str | None, Header()] = None,
+        code: Annotated[str | None, Cookie()] = None
+) -> Response:
+    # ic(authorization)
+    if not authorization:
+        authorization = code
 
-    response = Response()
-    print(authorization)
+    email_confirm_exception = HTTPException(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        detail="Email not confirmed, please confirm email in Twitch to continue.",
+        headers={"Authenticate": "Bearer"}
+    )
+
     try:
         username = await twitch_login(authorization)
-
     except KeyError:
+        raise email_confirm_exception
 
-        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-        raise HTTPException(503, {"detail": "Email not confirmed, please confirm email to continue."})
     user = await authenticate_user(username)
 
     access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
@@ -63,8 +73,8 @@ async def login_for_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     response.set_cookie(key="session", secure=True, httponly=True, value=access_token, max_age=3600)
+    response.status_code = 200
 
-    # todo normal return
     return response
 
 
@@ -72,5 +82,4 @@ async def login_for_access_token(
 async def callback(code: str = None) -> RedirectResponse:
     response = RedirectResponse("/api/alpha1/auth/token")
     response.set_cookie("code", code, 1)
-
     return response

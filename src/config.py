@@ -2,9 +2,10 @@ import json
 from dotenv import load_dotenv
 import os
 
+
 load_dotenv()
-    
-with open('bot_config.json') as json_file:
+
+with open('./bot_config.json') as json_file:
     data = json.load(json_file)
 DEFAULT_BOT_CONFIG = data
 
@@ -17,7 +18,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 ALGORITHM = os.environ.get("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
 
-REDIRECT_URL = os.environ.get("REDIRECT_URL") #"http://localhost:8000/api/alpha1/auth/twitch/callback" #
+REDIRECT_URL = os.environ.get("REDIRECT_URL")  # "http://localhost:8000/api/alpha1/auth/twitch/callback" #
 TWITCH_URL_AUTHORIZE = os.environ.get("TWITCH_URL_AUTHORIZE")
 
 DB_HOST = os.environ.get("DB_HOST")
