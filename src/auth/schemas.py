@@ -1,6 +1,6 @@
 from typing import Optional
 import uuid
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class UserRead(BaseModel):
@@ -12,6 +12,15 @@ class UserRead(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UserRegister(BaseModel):
+    username: str
+    image_url: str
+    email: EmailStr
+    twitch_user_id: str
+    twitch_access_token: str
+    twitch_refresh_token: str
 
 
 class UserCreate(BaseModel):

@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 from fastapi_users_db_sqlalchemy import UUID_ID
 from fastapi_users_db_sqlalchemy.generics import GUID
-from sqlalchemy import TIMESTAMP, ForeignKey, Boolean, Integer
+from sqlalchemy import DateTime, ForeignKey, Boolean, Integer
 from src.database import Base
 from sqlalchemy.orm import Mapped, relationship, MappedColumn
 
@@ -17,7 +17,7 @@ class Order(Base):
     length: Mapped[int]
     sendler: Mapped[str]
 
-    time_created = MappedColumn(TIMESTAMP, default=datetime.now(timezone.utc))
+    time_created = MappedColumn(DateTime(timezone=True), default=datetime.now(timezone.utc))
 
     username: Mapped[str] = MappedColumn(ForeignKey('user.username'))
     user: Mapped["User"] = relationship(back_populates="order")

@@ -9,7 +9,7 @@ from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.models import User
-from src.auth.router import get_current_user
+from src.auth.dependencies import AuthHandler
 from src.config import SECRET_KEY, ALGORITHM
 from src.database import get_async_session
 from src.my_awesome_sockets import sio_server
@@ -21,6 +21,7 @@ order_router = APIRouter(
     tags=['Order'],
 )
 
+auth_handler = AuthHandler()
 
 @order_router.get("/get_orders")
 async def get_all_orders(
@@ -46,7 +47,7 @@ async def get_all_orders(
 
 @order_router.get("/get_orders_for_curr_user")
 async def orders_curr_user(
-        curruser: Annotated[User, Depends(get_current_user)],
+        curruser: Annotated[User, Depends(auth_handler.get_current_user)],
         db_session: Annotated[AsyncSession, Depends(get_async_session)],
 ):
     stmt = (select(Order)
@@ -86,27 +87,27 @@ async def create_order(
 
     await db_session.commit()
 
-    return Response({"detail": "Order has been successfully created"}, status.HTTP_201_CREATED)
+    return Response("Order has been successfully created", status.HTTP_201_CREATED)
 
 
 @order_router.post("/delete")
 async def delete_order(
         order_id: OrderId,
-        curruser: Annotated[User, Depends(get_current_user)],
+        curruser: Annotated[User, Depends(auth_handler.get_current_user)],
         db_session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> Response:
     stmt = update(Order).where(Order.id == order_id.order_id, Order.user == curruser).values(is_active=False)
     await db_session.execute(stmt)
     await db_session.commit()
-    return Response({"detail": "Order has been successfully deleted"}, status.HTTP_200_OK)
+    return Response("Order has been successfully deleted", status.HTTP_200_OK)
 
 
 @order_router.post("/clear_list")
 async def delete_order_list(
-        curruser: Annotated[User, Depends(get_current_user)],
+        curruser: Annotated[User, Depends(auth_handler.get_current_user)],
         db_session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> Response:
     stmt = update(Order).where(Order.user_id == curruser.id).values(is_active=False)
     await db_session.execute(stmt)
     await db_session.commit()
-    return Response({"detail": "Orders has been successfully deleted"}, status.HTTP_200_OK)
+    return Response("Orders has been successfully deleted", status.HTTP_200_OK)
